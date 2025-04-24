@@ -1,7 +1,7 @@
 .PHONY: build run stop clean
 
 build:
-	docker-compose -f srcs/docker/docker-compose.yml build
+	docker-compose -f srcs/docker-compose.yml build
 
 run:
 	docker-compose -f srcs/docker-compose.yml up -d
