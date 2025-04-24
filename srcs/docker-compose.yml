@@ -1,0 +1,19 @@
+version: '3.0'
+
+services:
+  nginx:
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+      container_name: nginx
+      ports:
+        "433:433"
+      networks:
+        inception
+      restart: always
+      env_file:
+        .env
+  
+networks:
+  inception:
+    driver: bridge
