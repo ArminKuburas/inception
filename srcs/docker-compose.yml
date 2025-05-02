@@ -1,4 +1,4 @@
-version: '3.0'
+version: '3.8'
 
 services:
   nginx:
@@ -7,13 +7,29 @@ services:
       dockerfile: Dockerfile
     container_name: nginx
     ports:
-      - "433:433"
+      - "443:443"
     networks:
       - inception
     restart: always
     env_file:
       - .env
-  
+
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    container_name: mariadb
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - inception
+    restart: always
+    env_file:
+      - .env
+
+volumes:
+  db_data:
+
 networks:
   inception:
     driver: bridge
