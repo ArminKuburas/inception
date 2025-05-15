@@ -1,41 +1,43 @@
 DOCKER_COMPOSE_FILE := ./srcs/docker-compose.yml
 ENV_FILE := srcs/.env
-DATA_DIR := $(HOME)/data
-WORDPRESS_DATA_DIR := $(DATA_DIR)/wordpress
-MARIADB_DATA_DIR := $(DATA_DIR)/mariadb
 
 name = inception
 
 all: up
 
-#this will make, start and keep containers running
-up: create_dirs
-	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
+# Start and build containers
+up:
+	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
 
+# Stop and remove containers
 down:
 	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) down
 
+# Rebuild containers
 re: fclean up
 
+# Clean up unused Docker resources
 clean: down
 	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) down --remove-orphans
 	docker system prune -f
 
+# Full cleanup
 fclean: down
 	docker system prune --all --force --volumes
 	docker network prune --force
 	docker volume prune --force
-	sudo rm -rf $(WORDPRESS_DATA_DIR) 
-	sudo rm -rf $(MARIADB_DATA_DIR)
 
+# Follow logs of running containers
 logs:
 	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) logs -f
 
-create_dirs:
-	mkdir -p $(WORDPRESS_DATA_DIR)
-	mkdir -p $(MARIADB_DATA_DIR)
-	chmod -R 777 /home/akuburas/data/mariadb /home/akuburas/data/wordpress
 
-re: fclean up
+# Build Docker images
+build:
+	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) build
 
-.PHONY: all up down re clean fclean logs create_dirs
+# Check the status of containers
+status:
+	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) ps
+
+.PHONY: all up down re clean fclean logs  build status
