@@ -1,49 +1,72 @@
-version: '3.8'
-
 services:
+  mariadb:
+    container_name: mariadb
+    init: true
+    restart: always
+    expose:
+      - 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}     
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    env_file:
+      - .env
+    build: requirements/mariadb
+    volumes:
+      - mariadb:/var/lib/mysql
+    networks:
+      - docker-network
+    image: mariadb:akuburas
   nginx:
-    build:
-      context: ./requirements/nginx
-      dockerfile: Dockerfile
     container_name: nginx
+    init: true
+    restart: always
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+    env_file:
+      - .env
+    build: requirements/nginx
     ports:
       - "443:443"
-    networks:
-      - inception
-    restart: always
-    env_file:
-      - .env
-
-  mariadb:
-    build:
-      context: ./requirements/mariadb
-      dockerfile: Dockerfile
-    container_name: mariadb
     volumes:
-      - db_data:/var/lib/mysql
+      - wordpress:/var/www/html 
     networks:
-      - inception
-    restart: always
-    env_file:
-      - .env
-
+      - docker-network
+    depends_on:
+      - wordpress
+    image: nginx:akuburas
   wordpress:
-    build:
-      context: ./requirements/wordpress
-      dockerfile: Dockerfile
     container_name: wordpress
-    volumes:
-      - wp_data:/var/www/html
-    networks:
-      - inception
+    init: true
     restart: always
-    env_file:
-      - .env
-
+    expose:
+      -  "9000"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - WORDPRESS_TITLE=${WORDPRESS_TITLE}
+      - WORDPRESS_ADMIN_USER=${WORDPRESS_ADMIN_USER}
+      - WORDPRESS_ADMIN_PASSWORD=${WORDPRESS_ADMIN_PASSWORD}
+      - WORDPRESS_ADMIN_EMAIL=${WORDPRESS_ADMIN_EMAIL}
+      - WORDPRESS_USER=${WORDPRESS_USER}
+      - WORDPRESS_PASSWORD=${WORDPRESS_PASSWORD}
+      - WORDPRESS_EMAIL=${WORDPRESS_EMAIL}
+    build: requirements/wordpress
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - docker-network
+    depends_on:
+      - mariadb
+    image: wordpress:akuburas
 volumes:
-  db_data:
-  wp_data:
+  mariadb:
+  wordpress:
 
 networks:
-  inception:
+  docker-network:
+    name: docker-network
     driver: bridge

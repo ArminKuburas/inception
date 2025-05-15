@@ -1,16 +1,41 @@
-.PHONY: build run stop clean generate-certs
+DOCKER_COMPOSE_FILE := ./srcs/docker-compose.yml
+ENV_FILE := srcs/.env
+DATA_DIR := $(HOME)/data
+WORDPRESS_DATA_DIR := $(DATA_DIR)/wordpress
+MARIADB_DATA_DIR := $(DATA_DIR)/mariadb
 
-generate-certs:
-	srcs/requirements/nginx/tools/generate_certs.sh
+name = inception
 
-build: generate-certs
-	docker compose -f srcs/docker-compose.yml build
+all: up
 
-run:
-	docker compose -f srcs/docker-compose.yml up -d
+#this will make, start and keep containers running
+up: create_dirs
+	docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
 
-stop:
-	docker compose -f srcs/docker-compose.yml down
+down:
+	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) down
 
-clean:
-	docker compose -f srcs/docker-compose.yml down --volumes --remove-orphans
+re: fclean up
+
+clean: down
+	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) down --remove-orphans
+	docker system prune -f
+
+fclean: down
+	docker system prune --all --force --volumes
+	docker network prune --force
+	docker volume prune --force
+	sudo rm -rf $(WORDPRESS_DATA_DIR) 
+	sudo rm -rf $(MARIADB_DATA_DIR)
+
+logs:
+	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) logs -f
+
+create_dirs:
+	mkdir -p $(WORDPRESS_DATA_DIR)
+	mkdir -p $(MARIADB_DATA_DIR)
+	chmod -R 777 /home/akuburas/data/mariadb /home/akuburas/data/wordpress
+
+re: fclean up
+
+.PHONY: all up down re clean fclean logs create_dirs
