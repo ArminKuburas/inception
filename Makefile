@@ -7,7 +7,7 @@ all: up
 
 # Start and build containers
 up:
-	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
+	COMPOSE_BAKE=true docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
 
 # Stop and remove containers
 down:
