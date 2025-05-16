@@ -32,7 +32,4 @@ RUN chmod 600 /etc/nginx/nginx.conf
 EXPOSE 80
 EXPOSE 443
 
-# Add a health check to ensure that Nginx is running
-HEALTHCHECK --interval=15s --timeout=3s --retries=3 --start-period=10s CMD curl -f http://localhost/ || exit 1
-
 ENTRYPOINT [ "generate_certs.sh" ]

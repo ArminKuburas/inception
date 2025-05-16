@@ -1,14 +1,25 @@
 [client]
+# Default port for MariaDB client connections
 port        = 3306
+# Unix socket for local connections
 socket      = /var/run/mysqld/mysqld.sock
 
 [mysqld]
+# Run MariaDB as the mysql user
 user        = mysql
+# PID file for the MariaDB process
 pid-file    = /var/run/mysqld/mariadb.pid
+# Unix socket for local connections
 socket      = /var/run/mysqld/mysqld.sock
+# Port for MariaDB server connections
 port        = 3306
+# Base directory for MariaDB binaries
 basedir     = /usr
+# Data directory for MariaDB
 datadir     = /var/lib/mysql
+# Directory for temporary files
 tmpdir      = /tmp
+# Enable networking
 skip-networking = false
+# Bind to localhost for security (change to 0.0.0.0 if external access is required in for example WSL or other cases)
 bind-address    = 0.0.0.0

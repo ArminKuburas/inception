@@ -1,17 +1,30 @@
 #!/bin/bash
-set -e
 
-echo "I am executing mariaDB entrypoint script"
+# Set the shell options to exit immediately if a command fails,
+# treat unset variables as an error, and pipe failures as errors
+# This is a best practice for writing robust shell scripts.
+# It helps to catch errors early and makes debugging easier.
+# The script is designed to be run as part of a Docker container entrypoint.
+set -euo pipefail
 
-# Ensure the data directory exists
+log() {
+	echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+}
+
+log "Starting MariaDB setup!"
+
+# Check if the mysql directory exists
+# If it doesn't exist, create it and set the ownership to mysql:mysql
+# Although the dockerfile already creates the directory, this is a safety check
+# to ensure that the directory is present before proceeding with the initialization
 if [ ! -d "/var/lib/mysql" ]; then
-    echo "Creating /var/lib/mysql directory"
+    log "I am creating a new container for mariadb. Creating /var/lib/mysql directory."
     mkdir -p /var/lib/mysql
     chown -R mysql:mysql /var/lib/mysql
 fi
 
 if [ ! -d "/var/lib/mysql/mysql" ]; then
-	echo "I am creating a new container for mariadb"
+	log "Downl"
 	mysql_install_db --datadir=/var/lib/mysql --skip-test-db --user=mysql 
 	mysqld --user=mysql --bootstrap << EOF
 
@@ -23,8 +36,8 @@ GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';
 GRANT ALL PRIVILEGES on *.* to 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
 FLUSH PRIVILEGES;
 EOF
-	echo "Initialization is complete"
+	log "MariaDB setup complete."
 fi
-
-echo "MariaDB is starting"
+log "Starting MariaDB server..."
+# Start the MariaDB server with the specified user
 exec mysqld --user=mysql
