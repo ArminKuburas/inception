@@ -7,6 +7,11 @@ all: up
 
 # Start and build containers
 up:
+	mkdir -p /home/akuburas/data/mariadb
+	mkdir -p /home/akuburas/data/wordpress
+	chmod -R 777 /home/akuburas/data
+	chmod -R 777 /home/akuburas/data/mariadb
+	chmod -R 777 /home/akuburas/data/wordpress
 	COMPOSE_BAKE=true docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
 
 # Stop and remove containers
