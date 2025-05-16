@@ -1,4 +1,30 @@
+# Exclude sensitive files
 .env
+
+# Exclude IDE-specific files
 .vscode/
+
+# Exclude Git-related files
 .git
 .gitignore
+
+# Exclude build artifacts
+node_modules/
+dist/
+build/
+
+# Exclude logs
+*.log
+
+# Exclude temporary files
+*.swp
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Exclude Docker-specific files
+docker-compose.yml
+
+# Exclude SSL certificates (if dynamically generated)
+*.crt
+*.key

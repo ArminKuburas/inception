@@ -1,64 +1,91 @@
 #!/bin/bash
-set -e
+set -eou pipefail
+# Exit immediately if a command exits with a non-zero status (-e),
+# treat unset variables as an error and exit immediately (-u),
+# and prevent errors in a pipeline from being masked (-o pipefail).
 
+# Increase PHP memory limit to 512M
 echo "memory_limit = 512M" >> /etc/php83/php.ini
 
-echo "Starting wordpress setup!"
+# Function to log messages with timestamps
+log() {
+	echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
 
-# Ensure PHP-FPM is installed
-php-fpm83 -v || { echo "PHP-FPM is not installed or not working"; exit 1; }
+log "Starting WordPress setup!"
 
-# Ensure WP-CLI is installed
+# Ensure PHP-FPM is installed and working
+php-fpm83 -v || { log "ERROR: PHP-FPM is not installed or not working"; exit 1; }
+
+# Ensure WP-CLI (WordPress Command Line Interface) is installed
 if [ ! -f /usr/local/bin/wp ]; then
-	echo "WP-CLI is not installed. Installing now."
+	log "WP-CLI is not installed. Installing WP-CLI..."
 	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 	chmod +x wp-cli.phar
 	mv wp-cli.phar /usr/local/bin/wp
+	log "WP-CLI installation complete."
 else
-	echo "WP-CLI is already installed."
+	log "WP-CLI is already installed."
 fi
 
-# Waiting for mariaDB to set up
-until mariadb-admin ping --protocol=tcp --host=mariadb -u"$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>&1; do                                    
-	sleep 2                                                                                                                                                       
+# Wait for MariaDB to be ready before proceeding
+log "Waiting for MariaDB to be ready..."
+until mariadb-admin ping --protocol=tcp --host=mariadb -u"$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>&1; do
+	sleep 2
 done
+log "MariaDB is ready."
 
+# Change to the WordPress installation directory
 cd /var/www/html
 
+# Check if WordPress is already installed
 if [ ! -f wp-config.php ]; then
-   	echo "Wordpress not installed. Installing now."
+	log "WordPress is not installed. Starting installation process..."
 	
+	# Download and install WP-CLI (if not already done earlier)
 	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 	chmod +x wp-cli.phar
 	mv wp-cli.phar /usr/local/bin/wp
-	    
+		
+	# Download WordPress core files
 	wp core download --allow-root
-        wp config create --allow-root --dbhost=mariadb --dbuser="$MYSQL_USER" \
-            --dbpass="$MYSQL_PASSWORD" --dbname="$MYSQL_DATABASE"
-        wp core install --allow-root  --skip-email  --url="$DOMAIN_NAME"  --title="Inception" \
-            --admin_user="$WORDPRESS_ADMIN_USER"  --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
-            --admin_email="$WORDPRESS_ADMIN_EMAIL"
+	
+	# Create the wp-config.php file with database credentials
+	wp config create --allow-root --dbhost=mariadb --dbuser="$MYSQL_USER" \
+		--dbpass="$MYSQL_PASSWORD" --dbname="$MYSQL_DATABASE"
+	
+	# Install WordPress with the provided admin credentials and site details
+	wp core install --allow-root --skip-email --url="$DOMAIN_NAME" --title="Inception" \
+		--admin_user="$WORDPRESS_ADMIN_USER" --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
+		--admin_email="$WORDPRESS_ADMIN_EMAIL"
 
-        if ! wp user get "$WORDPRESS_USER" --allow-root > /dev/null 2>&1; then
-            wp user create "$WORDPRESS_USER" "$WORDPRESS_EMAIL" --role=author --user_pass="$WORDPRESS_PASSWORD" --allow-root
-        fi
+	# Create a new WordPress user if it doesn't already exist
+	if ! wp user get "$WORDPRESS_USER" --allow-root > /dev/null 2>&1; then
+		wp user create "$WORDPRESS_USER" "$WORDPRESS_EMAIL" --role=author --user_pass="$WORDPRESS_PASSWORD" --allow-root
+		log "Created WordPress user '$WORDPRESS_USER'."
+	fi
 
-	echo "Wordpress installation complete."
+	log "WordPress installation complete."
 else
-	echo "WordPress was already installed."
+	log "WordPress is already installed. Skipping installation."
 fi
 
-# Ensure the default theme is installed and activated
+# Ensure the default theme (bedrock) is installed
 if ! wp theme is-installed bedrock --allow-root > /dev/null 2>&1; then
-	echo "Installing default theme 'bedrock'..."
+	log "Default theme 'bedrock' is not installed. Installing theme..."
 	wp theme install bedrock --allow-root
+	log "Theme 'bedrock' installed."
 fi
 
-echo "Activating default theme 'bedrock'..."
-wp theme activate bedrock --allow-root || { echo "Failed to activate theme 'bedrock'"; exit 1; }
+# Activate the default theme (bedrock)
+log "Activating default theme 'bedrock'..."
+wp theme activate bedrock --allow-root || { log "ERROR: Failed to activate theme 'bedrock'"; exit 1; }
 
+# Set proper permissions for WordPress files and directories
+log "Setting permissions for WordPress files..."
 chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html/wp-content
 
-echo "Starting up PHP-FPM"
+# Start PHP-FPM in the foreground
+log "Starting PHP-FPM..."
 exec php-fpm83 -F
