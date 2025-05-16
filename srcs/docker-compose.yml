@@ -71,3 +71,7 @@ networks:
   docker-network:
     name: docker-network
     driver: bridge
+
+volumes:
+  wordpress:
+  mariadb:
