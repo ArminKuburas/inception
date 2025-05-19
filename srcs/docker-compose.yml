@@ -80,18 +80,18 @@ volumes:
 
 secrets:
   mysql_root_password:
-    file: ./secrets/mysql_root_password
+    file: ../secrets/mysql_root_password
   mysql_user:
-    file: ./secrets/mysql_user
+    file: ../secrets/mysql_user
   mysql_password:
-    file: ./secrets/mysql_password
+    file: ../secrets/mysql_password
   wordpress_admin_password:
-    file: ./secrets/wordpress_admin_password
+    file: ../secrets/wordpress_admin_password
   wordpress_admin_email:
-    file: ./secrets/wordpress_admin_email
+    file: ../secrets/wordpress_admin_email
   wordpress_user:
-    file: ./secrets/wordpress_user
+    file: ../secrets/wordpress_user
   wordpress_password:
-    file: ./secrets/wordpress_password
+    file: ../secrets/wordpress_password
   wordpress_email:
-    file: ./secrets/wordpress_email
+    file: ../secrets/wordpress_email

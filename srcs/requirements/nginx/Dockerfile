@@ -29,7 +29,6 @@ COPY conf/nginx.conf /etc/nginx/nginx.conf
 RUN chmod 600 /etc/nginx/nginx.conf
 
 # Expose the HTTP and HTTPS ports
-EXPOSE 80
 EXPOSE 443
 
 ENTRYPOINT [ "nginx_script.sh" ]
