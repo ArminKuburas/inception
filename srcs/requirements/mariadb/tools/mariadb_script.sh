@@ -7,6 +7,13 @@
 # The script is designed to be run as part of a Docker container entrypoint.
 set -euo pipefail
 
+MYSQL_USER=$(cat /run/secrets/mysql_user)
+MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
+MYSQL_ROOT_PASSWORD=$(cat /run/secrets/mysql_root_password)
+MYSQL_DATABASE=${MYSQL_DATABASE:-wordpress}
+
+
+
 log() {
 	echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
 }

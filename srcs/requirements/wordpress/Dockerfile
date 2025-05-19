@@ -24,10 +24,10 @@ RUN addgroup -g 82 www-data && adduser -u 82 -G www-data -s /bin/sh -D www-data 
 COPY conf/www.conf /etc/php83/php-fpm.d/www.conf
 
 # Copy the WordPress entrypoint script to the container's bin directory
-COPY tools/wordpress-entrypoint.sh /usr/local/bin/
+COPY tools/wordpress_script.sh /usr/local/bin/
 
 # Make the entrypoint script executable
-RUN chmod +x /usr/local/bin/wordpress-entrypoint.sh
+RUN chmod +x /usr/local/bin/wordpress_script.sh
 
 # Add a system user 'www-data' without a home directory or login shell
 # This ensures the web server runs with minimal privileges
@@ -40,6 +40,6 @@ RUN chown -R 775 /var/www/html
 RUN which php-fpm83
 
 # Set the entrypoint to the WordPress entrypoint script
-ENTRYPOINT [ "wordpress-entrypoint.sh" ]
+ENTRYPOINT [ "wordpress_script.sh" ]
 
 

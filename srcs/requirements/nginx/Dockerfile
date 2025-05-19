@@ -19,9 +19,9 @@ RUN apk update && \
     adduser -D -H -s /sbin/nologin -g www-data -G www-data www-data
 
 # Copy the entrypoint script
-COPY tools/generate_certs.sh /usr/local/bin/
+COPY tools/nginx_script.sh /usr/local/bin/
 # Change the permissions of the entrypoint script to be executable by all users
-RUN chmod 700 /usr/local/bin/generate_certs.sh
+RUN chmod 700 /usr/local/bin/nginx_script.sh
 
 # Copy the Nginx configuration file
 # Change the permissions of the Nginx configuration file to be readable by all users
@@ -32,4 +32,4 @@ RUN chmod 600 /etc/nginx/nginx.conf
 EXPOSE 80
 EXPOSE 443
 
-ENTRYPOINT [ "generate_certs.sh" ]
+ENTRYPOINT [ "nginx_script.sh" ]

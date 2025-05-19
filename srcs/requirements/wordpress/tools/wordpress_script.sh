@@ -4,6 +4,15 @@ set -eou pipefail
 # treat unset variables as an error and exit immediately (-u),
 # and prevent errors in a pipeline from being masked (-o pipefail).
 
+MYSQL_USER=$(cat /run/secrets/mysql_user)
+MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
+MYSQL_ROOT_PASSWORD=$(cat /run/secrets/mysql_root_password)
+WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wordpress_admin_password)
+WORDPRESS_ADMIN_EMAIL=$(cat /run/secrets/wordpress_admin_email)
+WORDPRESS_USER=$(cat /run/secrets/wordpress_user)
+WORDPRESS_PASSWORD=$(cat /run/secrets/wordpress_password)
+WORDPRESS_EMAIL=$(cat /run/secrets/wordpress_email)
+
 # Increase PHP memory limit to 512M
 echo "memory_limit = 512M" >> /etc/php83/php.ini
 
