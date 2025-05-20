@@ -1,5 +1,5 @@
 # Use the official Alpine Linux image as the base image
-FROM alpine:3.20.5
+FROM alpine:3.20.6
 
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000

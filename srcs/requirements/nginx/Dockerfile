@@ -1,6 +1,6 @@
 
 # Make sure to use the penultimate version of Alpine
-FROM alpine:3.20.5
+FROM alpine:3.20.6
 
 # Update the package list and install Nginx and OpenSSL
 # Create necessary directories and add a non-root user

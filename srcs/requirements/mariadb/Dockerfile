@@ -1,5 +1,5 @@
 # Use the penultimate version of Alpine
-FROM alpine:3.20.5
+FROM alpine:3.20.6
 
 # Expose the default Mariadb port
 EXPOSE 3306
