@@ -11,7 +11,9 @@ services:
     ports:
       - "443:443"
     volumes:
-      - wordpress:/var/www/html 
+      - type: bind
+        source: /home/akuburas/data/wordpress
+        target: /var/www/html
     networks:
       - docker-network
     depends_on:

@@ -21,5 +21,4 @@ datadir     = /var/lib/mysql
 tmpdir      = /tmp
 # Enable networking
 skip-networking = false
-# Bind to localhost for security (change to 0.0.0.0 if external access is required in for example WSL or other cases)
 bind-address    = 0.0.0.0
