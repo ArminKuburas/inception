@@ -12,6 +12,16 @@ WORDPRESS_ADMIN_EMAIL=$(cat /run/secrets/wordpress_admin_email)
 WORDPRESS_USER=$(cat /run/secrets/wordpress_user)
 WORDPRESS_PASSWORD=$(cat /run/secrets/wordpress_password)
 WORDPRESS_EMAIL=$(cat /run/secrets/wordpress_email)
+WORDPRESS_ADMIN_USER=$(cat /run/secrets/wordpress_admin_user)
+
+echo "MYSQL_USER: $MYSQL_USER"
+echo "MYSQL_PASSWORD: $MYSQL_PASSWORD"
+echo "MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD"
+echo "WORDPRESS_ADMIN_PASSWORD: $WORDPRESS_ADMIN_PASSWORD"
+echo "WORDPRESS_ADMIN_EMAIL: $WORDPRESS_ADMIN_EMAIL"
+echo "WORDPRESS_USER: $WORDPRESS_USER"
+echo "WORDPRESS_PASSWORD: $WORDPRESS_PASSWORD"
+echo "WORDPRESS_EMAIL: $WORDPRESS_EMAIL"
 
 # Increase PHP memory limit to 512M
 echo "memory_limit = 512M" >> /etc/php83/php.ini
@@ -73,22 +83,13 @@ if [ ! -f wp-config.php ]; then
 		wp user create "$WORDPRESS_USER" "$WORDPRESS_EMAIL" --role=author --user_pass="$WORDPRESS_PASSWORD" --allow-root
 		log "Created WordPress user '$WORDPRESS_USER'."
 	fi
-
+    wp theme activate twentytwentythree --allow-root
+    log "Activated default theme 'Twenty Twenty-Three'."
+	
 	log "WordPress installation complete."
 else
 	log "WordPress is already installed. Skipping installation."
 fi
-
-# Ensure the default theme (bedrock) is installed
-if ! wp theme is-installed bedrock --allow-root > /dev/null 2>&1; then
-	log "Default theme 'bedrock' is not installed. Installing theme..."
-	wp theme install bedrock --allow-root
-	log "Theme 'bedrock' installed."
-fi
-
-# Activate the default theme (bedrock)
-log "Activating default theme 'bedrock'..."
-wp theme activate bedrock --allow-root || { log "ERROR: Failed to activate theme 'bedrock'"; exit 1; }
 
 # Set proper permissions for WordPress files and directories
 log "Setting permissions for WordPress files..."
