@@ -28,9 +28,10 @@ clean: down
 
 # Full cleanup
 fclean: down
+	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) down -v --remove-orphans
+	docker volume rm wordpress mariadb || true
 	docker system prune --all --force --volumes
 	docker network prune --force
-	docker volume prune --force
 	sudo rm -rf /home/akuburas/data/mariadb
 	sudo rm -rf /home/akuburas/data/wordpress
 
@@ -47,4 +48,12 @@ build:
 status:
 	docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) ps
 
-.PHONY: all up down re clean fclean logs  build status
+add-host:
+	@if ! grep -q "^127.0.0.1[[:space:]]\+akuburas.42.fr" /etc/hosts; then \
+		echo "Adding akuburas.42.fr to /etc/hosts"; \
+		echo "127.0.0.1 akuburas.42.fr" | sudo tee -a /etc/hosts > /dev/null; \
+	else \
+		echo "akuburas.42.fr already present in /etc/hosts"; \
+	fi
+
+.PHONY: all up down re clean fclean logs  build status add-host
